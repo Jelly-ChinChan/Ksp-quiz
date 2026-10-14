@@ -1180,37 +1180,39 @@
     function formatChem(str) {
       if (!str) return '';
       return str
-        // 1. 常見化學平衡符號與斜體
+        // 1. 常見化學平衡符號與常數斜體
         .replace(/\bKsp\b/gi, '<i>K</i><sub>sp</sub>')
         .replace(/\bKc\b/gi, '<i>K</i><sub>c</sub>')
         .replace(/\bKp\b/gi, '<i>K</i><sub>p</sub>')
         .replace(/\bKf\b/gi, '<i>K</i><sub>f</sub>')
         .replace(/\bQ\b/g, '<i>Q</i>')
+        .replace(/\bK\b/g, '<i>K</i>')
         // 2. 指數科學記號 (如 10^-5, 10^38, 10－5)
-        .replace(/10\^?([－\-]?\d+)/g, '10<sup>$1</sup>')
+        .replace(/10\^?\s*([－\-]?\d+)/g, '10<sup>$1</sup>')
         // 3. 亞汞離子特殊處理 (Hg2^2+ 或 Hg22+)
         .replace(/Hg2\^?2[＋\+]/g, 'Hg<sub>2</sub><sup>2+</sup>')
         .replace(/Hg22[＋\+]/g, 'Hg<sub>2</sub><sup>2+</sup>')
         // 4. 離子價數上標 (如 [Pb^2+], Pb2+, SO4^2-, CrO42-, Ag+, Cl-)
-        .replace(/([A-Za-z\)])\^?([1-4])[＋\+]/g, '$1<sup>$2+</sup>')
-        .replace(/([A-Za-z\)])\^?([1-4])[－\-]/g, '$1<sup>$2-</sup>')
-        .replace(/([A-Za-z\)])\^[＋\+]/g, '$1<sup>+</sup>')
-        .replace(/([A-Za-z\)])\^[－\-]/g, '$1<sup>-</sup>')
+        .replace(/([A-Za-z\)])\^?\s*([1-4])[＋\+]/g, '$1<sup>$2+</sup>')
+        .replace(/([A-Za-z\)])\^?\s*([1-4])[－\-]/g, '$1<sup>$2-</sup>')
+        .replace(/([A-Za-z\)])\^\s*[＋\+]/g, '$1<sup>+</sup>')
+        .replace(/([A-Za-z\)])\^\s*[－\-]/g, '$1<sup>-</sup>')
         .replace(/([A-Za-z\)])[＋\+](?=[\]\s,\)）\^]|$)/g, '$1<sup>+</sup>')
         .replace(/([A-Za-z\)])[－\-](?=[\]\s,\)）\^]|$)/g, '$1<sup>-</sup>')
-        // 5. 數學運算次方上標 (如 ^-1, ^-2, ^2, ^3, ^(1/2), ^1/3 等，包含括號)
-        .replace(/\^([－\-]?[0-9]+)/g, '<sup>$1</sup>')
-        .replace(/\^\(([－\-]?[0-9\/]+)\)/g, '<sup>$1</sup>')
-        .replace(/\^([0-9]+\/[0-9]+)/g, '<sup>$1</sup>')
-        // 6. 化學式下標數字 (例如 Cl2, SO4, CO3, PO4, CaF2, PbI2，但不影響已轉換的 <sup>)
+        // 5. 數學與變數次方上標 (包含 ^a, ^b, ^c, ^d, ^x, ^2, ^3, ^-1, ^(1/2) 等，允許脫字號後有空格)
+        .replace(/\^\s*\(([－\-]?[A-Za-z0-9\/]+)\)/g, '<sup>$1</sup>')
+        .replace(/\^\s*([－\-]?[A-Za-z0-9]+(?:\/[0-9]+)?)/g, '<sup>$1</sup>')
+        // 6. 速率常數與莫耳數下標美化 (如 k正, k逆, r正, r逆, nA, nB, nC)
+        .replace(/\b([kr])(正|逆)\b/g, '$1<sub>$2</sub>')
+        .replace(/\bn([A-Z])\b/g, '<i>n</i><sub>$1</sub>')
+        // 7. 化學式個數下標數字 (例如 Cl2, SO4, CO3, PO4，但不影響已轉為 <sup> 的內容)
         .replace(/([A-Za-z\)])(\d+)(?!<sup>)/g, function(match, p1, p2) {
           return p1 + '<sub>' + p2 + '</sub>';
         })
-        // 7. 清理殘留的全形負號與加號
+        // 8. 清理全形符號
         .replace(/<sup>－/g, '<sup>-')
         .replace(/<sup>＋/g, '<sup>+');
     }
-
     let selectedMode = '', currentDifficulty = 1, currentConcept = null, consecutiveBaseWrongCount = 0;
     let isTerminatedEarly = false, isManualFinished = false;
     const servedQuestionIds = [], statusMap = {}, detailRecords = {};
