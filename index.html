@@ -1180,17 +1180,33 @@
     function formatChem(str) {
       if (!str) return '';
       return str
-        .replace(/\bKsp\b/g, '<i>K</i><sub>sp</sub>').replace(/\bKc\b/g, '<i>K</i><sub>c</sub>').replace(/\bK\b/g, '<i>K</i>')
-        .replace(/Hg2\^?2\+/g, 'Hg<sub>2</sub><sup>2+</sup>').replace(/CrO4\^?2\-/g, 'CrO<sub>4</sub><sup>2-</sup>')
-        .replace(/SO4\^?2\-/g, 'SO<sub>4</sub><sup>2-</sup>').replace(/CO3\^?2\-/g, 'CO<sub>3</sub><sup>2-</sup>')
-        .replace(/PO4\^?3\-/g, 'PO<sub>4</sub><sup>3-</sup>').replace(/NH4\+/g, 'NH<sub>4</sub><sup>+</sup>')
-        .replace(/Bi2S3/g, 'Bi<sub>2</sub>S<sub>3</sub>').replace(/CaF2/g, 'CaF<sub>2</sub>').replace(/PbCl2/g, 'PbCl<sub>2</sub>')
-        .replace(/PbI2/g, 'PbI<sub>2</sub>').replace(/Ag2CrO4/g, 'Ag<sub>2</sub>CrO<sub>4</sub>').replace(/AgCl/g, 'AgCl')
-        .replace(/BaSO4/g, 'BaSO<sub>4</sub>').replace(/H\+/g, 'H<sup>+</sup>').replace(/OH\-/g, 'OH<sup>-</sup>')
-        .replace(/Ag\+/g, 'Ag<sup>+</sup>').replace(/Cl\-/g, 'Cl<sup>-</sup>').replace(/Ba2\+/g, 'Ba<sup>2+</sup>')
-        .replace(/Fe3\+/g, 'Fe<sup>3+</sup>').replace(/SCN\-/g, 'SCN<sup>-</sup>').replace(/FeSCN2\+/g, 'FeSCN<sup>2+</sup>')
-        .replace(/10\^(-?\d+)/g, '10<sup>$1</sup>')
-        .replace(/([A-Za-z\)])(\d+)/g, function(m, p1, p2) { return p1 + '<sub>' + p2 + '</sub>'; });
+        // 1. 常見化學平衡符號與斜體
+        .replace(/\bKsp\b/gi, '<i>K</i><sub>sp</sub>')
+        .replace(/\bKc\b/gi, '<i>K</i><sub>c</sub>')
+        .replace(/\bKp\b/gi, '<i>K</i><sub>p</sub>')
+        .replace(/\bKf\b/gi, '<i>K</i><sub>f</sub>')
+        .replace(/\bQ\b/g, '<i>Q</i>')
+        // 2. 指數科學記號 (如 10^-5, 10^-10, 10－5)
+        .replace(/10\^?([－\-]?\d+)/g, '10<sup>$1</sup>')
+        // 3. 亞汞離子特殊處理 (Hg2^2+ 或 Hg22+)
+        .replace(/Hg2\^?2[＋\+]/g, 'Hg<sub>2</sub><sup>2+</sup>')
+        .replace(/Hg22[＋\+]/g, 'Hg<sub>2</sub><sup>2+</sup>')
+        // 4. 各類帶電離子價數上標 (優先處理帶有 ^ 或數字+正負號者，相容全形 ＋/－)
+        .replace(/\^([1-4]?[＋\+\-－])/g, '<sup>$1</sup>')
+        .replace(/([A-Za-z\)])\^?([1-4])[＋\+]/g, '$1<sup>$2+</sup>')
+        .replace(/([A-Za-z\)])\^?([1-4])[－\-]/g, '$1<sup>$2-</sup>')
+        .replace(/([A-Za-z\)])\^[＋\+]/g, '$1<sup>+</sup>')
+        .replace(/([A-Za-z\)])\^[－\-]/g, '$1<sup>-</sup>')
+        // 5. 單一帶電正負號 (如 Ag+, Cl-, H+, OH-)
+        .replace(/([A-Za-z\)])[＋\+](?=[\]\s,\)）]|$)/g, '$1<sup>+</sup>')
+        .replace(/([A-Za-z\)])[－\-](?=[\]\s,\)）]|$)/g, '$1<sup>-</sup>')
+        // 6. 化學式下標數字 (例如 Cl2, SO4, CO3, PO4, CaF2, PbI2)
+        .replace(/([A-Za-z\)])(\d+)(?!<sup>)/g, function(match, p1, p2) {
+          return p1 + '<sub>' + p2 + '</sub>';
+        })
+        // 7. 清理殘留的全形負號
+        .replace(/<sup>－/g, '<sup>-')
+        .replace(/<sup>＋/g, '<sup>+');
     }
 
     let selectedMode = '', currentDifficulty = 1, currentConcept = null, consecutiveBaseWrongCount = 0;
