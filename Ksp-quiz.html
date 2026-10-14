@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>高中化學：沉澱與溶解平衡全卷 75 題 AI 自適應測驗</title>
+  <!-- 引入完整的 75 題題庫 -->
+  <script src="questions.js"></script>
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --primary-light: #eff6ff;
+      --secondary: #64748b;
+      --success: #16a34a;
+      --warning: #d97706;
+      --danger: #dc2626;
+      --gray-bg: #f8fafc;
+      --card-bg: #ffffff;
+      --border: #e2e8f0;
+      --text: #1e293b;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background-color: var(--gray-bg);
+      color: var(--text);
+      line-height: 1.6;
+      margin: 0;
+      padding: 16px;
+    }
+    .container { max-width: 850px; margin: 0 auto; }
+    header { text-align: center; margin-bottom: 20px; }
+    h1 { color: #1e3a8a; margin-bottom: 6px; font-size: 1.6rem; }
+    .subtitle { color: #64748b; font-size: 0.95rem; }
+    .student-card {
+      background: var(--card-bg); border-radius: 12px; padding: 18px 24px; margin-bottom: 20px;
+      border: 1px solid var(--border); box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+      display: flex; flex-wrap: wrap; gap: 16px; align-items: center; justify-content: space-between;
+    }
+    .info-group { display: flex; align-items: center; gap: 8px; flex: 1; min-width: 180px; }
+    .info-group label { font-weight: 600; color: #334155; white-space: nowrap; }
+    .info-group input { width: 100%; padding: 8px 12px; border: 1px solid var(--border); border-radius: 6px; font-size: 0.95rem; outline: none; }
+    .info-group input:disabled { background-color: #f1f5f9; color: #64748b; cursor: not-allowed; }
+    .mode-card {
+      background: #ffffff; border: 2px solid #93c5fd; border-radius: 12px; padding: 24px;
+      margin-bottom: 24px; text-align: center; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.08);
+    }
+    .mode-title { font-size: 1.15rem; font-weight: bold; color: #1e40af; margin-bottom: 14px; }
+    .mode-btns { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; }
+    .btn-mode {
+      flex: 1; min-width: 250px; max-width: 360px; padding: 14px 18px; background: #eff6ff;
+      border: 2px solid var(--primary); border-radius: 8px; color: var(--primary);
+      font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.2s ease;
+    }
+    .btn-mode:hover { background: var(--primary); color: #ffffff; }
+    .status-bar {
+      position: sticky; top: 15px; z-index: 10; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(8px);
+      border: 1px solid var(--border); border-radius: 12px; padding: 12px 20px; margin-bottom: 24px;
+      display: none; flex-wrap: wrap; gap: 12px; justify-content: space-between; align-items: center;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    }
+    .status-left { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
+    .status-info { font-size: 1rem; font-weight: 600; }
+    .status-score { color: var(--primary); }
+    .btn-early-finish {
+      background: #fff1f2; border: 1px solid #fecdd3; color: #e11d48;
+      font-size: 0.88rem; font-weight: 600; padding: 6px 14px; border-radius: 20px; cursor: pointer;
+    }
+    .card {
+      background: var(--card-bg); border-radius: 12px; padding: 20px 24px; margin-bottom: 20px;
+      border: 1px solid var(--border); box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); animation: fadeIn 0.3s ease-in-out;
+    }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    .q-title { font-weight: 600; font-size: 1.05rem; margin-bottom: 16px; }
+    .q-type { display: inline-block; background: #e0e7ff; color: #4338ca; font-size: 0.8rem; padding: 2px 8px; border-radius: 4px; margin-right: 6px; }
+    .level-badge { display: inline-block; font-size: 0.8rem; padding: 2px 8px; border-radius: 4px; margin-right: 6px; font-weight: 600; }
+    .level-1 { background: #dcfce7; color: #166534; }
+    .level-2 { background: #fef3c7; color: #b45309; }
+    .level-3 { background: #fee2e2; color: #991b1b; }
+    .concept-tag { display: inline-block; background: #f1f5f9; color: #475569; font-size: 0.8rem; padding: 2px 8px; border-radius: 4px; margin-right: 6px; }
+    .locked-badge { display: inline-block; background: #fee2e2; color: #991b1b; font-size: 0.8rem; padding: 2px 8px; border-radius: 4px; margin-left: 6px; }
+    .options { display: flex; flex-direction: column; gap: 10px; }
+    .option-label { display: flex; align-items: flex-start; padding: 10px 14px; border: 1px solid var(--border); border-radius: 8px; cursor: pointer; transition: all 0.2s; }
+    .option-label:hover { background: var(--primary-light); border-color: #93c5fd; }
+    .option-label.disabled { cursor: not-allowed; background: #f1f5f9; opacity: 0.85; border-color: #cbd5e1; }
+    .option-label.opt-selected-correct { background-color: #dcfce7 !important; border-color: #22c55e !important; color: #15803d !important; font-weight: 600; }
+    .option-label.opt-selected-wrong { background-color: #fee2e2 !important; border-color: #ef4444 !important; color: #b91c1c !important; font-weight: 600; }
+    .option-label.opt-missed-correct { border: 2px dashed #22c55e !important; background-color: #f0fdf4 !important; color: #166534 !important; }
+    .option-label input { margin-top: 5px; margin-right: 12px; transform: scale(1.15); }
+    .btn-submit-q { background: var(--primary); color: white; border: none; padding: 9px 20px; border-radius: 6px; font-size: 0.95rem; font-weight: 600; cursor: pointer; margin-top: 14px; }
+    .result-box { margin-top: 16px; padding: 16px; border-radius: 8px; display: none; }
+    .result-correct { background: #f0fdf4; border: 1px solid #bbf7d0; color: #166534; }
+    .result-wrong { background: #fef2f2; border: 1px solid #fecaca; color: #991b1b; }
+    .explanation { margin-top: 10px; font-size: 0.95rem; color: #334155; background: #f8fafc; padding: 12px; border-radius: 6px; border-left: 4px solid var(--primary); white-space: pre-line; }
+    .adaptive-next-box { text-align: center; margin: 24px 0; }
+    .btn-next-adaptive { background: #2563eb; color: #ffffff; border: none; padding: 12px 28px; border-radius: 30px; font-size: 1.05rem; font-weight: 600; cursor: pointer; box-shadow: 0 4px 10px rgba(37, 99, 235, 0.25); }
+    .upload-banner { display: none; background: #f8fafc; border: 2px dashed #94a3b8; border-radius: 12px; padding: 20px; text-align: center; margin-top: 30px; font-size: 1.1rem; font-weight: 600; }
+    .report-card { display: none; background: #ffffff; border: 2px solid #3b82f6; border-radius: 16px; padding: 26px; margin: 30px 0 60px 0; box-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.15); }
+    .report-header { border-bottom: 2px solid #eff6ff; padding-bottom: 16px; margin-bottom: 20px; text-align: center; }
+    .report-title { font-size: 1.4rem; color: #1e3a8a; font-weight: 800; margin-bottom: 6px; }
+    .diag-section { margin-bottom: 20px; padding: 16px; border-radius: 10px; }
+    .diag-clear { background: #f0fdf4; border: 1px solid #bbf7d0; }
+    .diag-reinforce { background: #fffbeb; border: 1px solid #fde68a; }
+    .diag-weak { background: #fef2f2; border: 1px solid #fecaca; }
+    .diag-title { font-weight: bold; font-size: 1.1rem; margin-bottom: 8px; }
+    .diag-list { margin: 0; padding-left: 22px; font-size: 0.95rem; color: #334155; }
+    .study-advice-box { background: #f8fafc; border-left: 4px solid #3b82f6; padding: 14px 18px; border-radius: 6px; margin-top: 18px; font-size: 0.95rem; }
+    .retry-box { text-align: center; margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--border); }
+    .btn-retry { background: #16a34a; color: #ffffff; border: none; padding: 12px 30px; border-radius: 30px; font-size: 1.05rem; font-weight: 700; cursor: pointer; }
+    sub, sup { font-size: 75%; line-height: 0; position: relative; vertical-align: baseline; }
+    sub { bottom: -0.25em; }
+    sup { top: -0.5em; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>🧪 高中化學：沉澱與溶解平衡全卷 75 題 AI 自適應測驗</h1>
+      <p class="subtitle">全卷共 75 題 ｜ 智慧同類螺旋晉級、選項即時回饋、隨時結算與個人學習診斷總評。</p>
+    </header>
+
+    <div class="student-card">
+      <div class="info-group"><label for="studentClass">班級：</label><input type="text" id="studentClass" placeholder="例如：高二甲班"></div>
+      <div class="info-group"><label for="studentSeat">座號：</label><input type="text" id="studentSeat" placeholder="例如：12"></div>
+      <div class="info-group"><label for="studentName">姓名：</label><input type="text" id="studentName" placeholder="請輸入姓名"></div>
+    </div>
+
+    <div id="modeCard" class="mode-card">
+      <div class="mode-title">🎯 請選擇作答模式（未填寫資料將以訪客直接作答）：</div>
+      <div class="mode-btns">
+        <button type="button" class="btn-mode" onclick="startQuiz('adaptive')">🤖 AI 智慧自適應模式<br><small style="font-weight: normal;">(同類題螺旋晉級、基礎題熔斷、可隨時結算)</small></button>
+        <button type="button" class="btn-mode" onclick="startQuiz('all')">📋 全卷標準模式<br><small style="font-weight: normal;">(一次展開全部 75 題)</small></button>
+      </div>
+    </div>
+
+    <div class="status-bar" id="statusBar">
+      <div class="status-left">
+        <div class="status-info">已作答：<span id="answeredCount">0</span> / <span id="totalDisplayCount">75</span> 題</div>
+        <div class="status-info status-score">目前得分：<span id="scoreText">0</span> 分</div>
+      </div>
+      <button type="button" id="btnEarlyFinish" class="btn-early-finish" onclick="triggerEarlyFinish()">🏁 寫累了，提早結算看診斷</button>
+    </div>
+
+    <form id="quizForm"><div id="questionsContainer"></div></form>
+
+    <div id="adaptiveNextBox" class="adaptive-next-box" style="display: none;">
+      <button type="button" id="btnNextAdaptive" class="btn-next-adaptive" onclick="renderNextAdaptiveQuestion()">✨ 載入下一題</button>
+    </div>
+
+    <div id="uploadBanner" class="upload-banner"></div>
+
+    <div id="reportCard" class="report-card">
+      <div class="report-header">
+        <div class="report-title">📊 沉澱與溶解平衡單元：學習能力診斷總評</div>
+        <div id="reportStudentInfo" style="color: #475569;"></div>
+      </div>
+      <div id="reportSections"></div>
+      <div id="studyAdvice" class="study-advice-box"></div>
+      <div class="retry-box"><button type="button" class="btn-retry" onclick="resetToHome()">🔄 繼續挑戰（返回重測）</button></div>
+    </div>
+  </div>
+
+  <script>
+    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxxL8aghmYIWUVNeQRD9-4bXDAIVTZjd-5afQLoe1irKaFBM6VjTPE6yHvi-7PVTL6q/exec";
+
+    function formatChem(str) {
+      if (!str) return '';
+      return str
+        .replace(/\bKsp\b/g, '<i>K</i><sub>sp</sub>').replace(/\bKc\b/g, '<i>K</i><sub>c</sub>').replace(/\bK\b/g, '<i>K</i>')
+        .replace(/Hg2\^?2\+/g, 'Hg<sub>2</sub><sup>2+</sup>').replace(/CrO4\^?2\-/g, 'CrO<sub>4</sub><sup>2-</sup>')
+        .replace(/SO4\^?2\-/g, 'SO<sub>4</sub><sup>2-</sup>').replace(/CO3\^?2\-/g, 'CO<sub>3</sub><sup>2-</sup>')
+        .replace(/PO4\^?3\-/g, 'PO<sub>4</sub><sup>3-</sup>').replace(/NH4\+/g, 'NH<sub>4</sub><sup>+</sup>')
+        .replace(/Bi2S3/g, 'Bi<sub>2</sub>S<sub>3</sub>').replace(/CaF2/g, 'CaF<sub>2</sub>').replace(/PbCl2/g, 'PbCl<sub>2</sub>')
+        .replace(/PbI2/g, 'PbI<sub>2</sub>').replace(/Ag2CrO4/g, 'Ag<sub>2</sub>CrO<sub>4</sub>').replace(/AgCl/g, 'AgCl')
+        .replace(/BaSO4/g, 'BaSO<sub>4</sub>').replace(/H\+/g, 'H<sup>+</sup>').replace(/OH\-/g, 'OH<sup>-</sup>')
+        .replace(/Ag\+/g, 'Ag<sup>+</sup>').replace(/Cl\-/g, 'Cl<sup>-</sup>').replace(/Ba2\+/g, 'Ba<sup>2+</sup>')
+        .replace(/Fe3\+/g, 'Fe<sup>3+</sup>').replace(/SCN\-/g, 'SCN<sup>-</sup>').replace(/FeSCN2\+/g, 'FeSCN<sup>2+</sup>')
+        .replace(/10\^(-?\d+)/g, '10<sup>$1</sup>')
+        .replace(/([A-Za-z\)])(\d+)/g, function(m, p1, p2) { return p1 + '<sub>' + p2 + '</sub>'; });
+    }
+
+    let selectedMode = '', currentDifficulty = 1, currentConcept = null, consecutiveBaseWrongCount = 0;
+    let isTerminatedEarly = false, isManualFinished = false;
+    const servedQuestionIds = [], statusMap = {}, detailRecords = {};
+    let isUploaded = false;
+
+    function checkStudentInfo() {
+      let sClass = document.getElementById('studentClass').value.trim();
+      let sSeat = document.getElementById('studentSeat').value.trim();
+      let sName = document.getElementById('studentName').value.trim();
+      if (!sClass || !sSeat || !sName) {
+        const proceed = confirm("⚠️ 您尚未填寫完整的學生資料，確定以【訪客】開始作答嗎？");
+        if (!proceed) return false;
+        if (!sClass) document.getElementById('studentClass').value = "訪客";
+        if (!sSeat) document.getElementById('studentSeat').value = "0";
+        if (!sName) document.getElementById('studentName').value = "匿名學生";
+      }
+      document.getElementById('studentClass').disabled = true;
+      document.getElementById('studentSeat').disabled = true;
+      document.getElementById('studentName').disabled = true;
+      return true;
+    }
+
+    function startQuiz(mode) {
+      if (!checkStudentInfo()) return;
+      selectedMode = mode;
+      document.getElementById('modeCard').style.display = 'none';
+      document.getElementById('statusBar').style.display = 'flex';
+      document.getElementById('btnEarlyFinish').style.display = (mode === 'adaptive') ? 'inline-block' : 'none';
+
+      if (mode === 'adaptive') {
+        currentDifficulty = 1; currentConcept = null; consecutiveBaseWrongCount = 0;
+        isTerminatedEarly = false; isManualFinished = false;
+        renderNextAdaptiveQuestion();
+      } else {
+        rawQuizData.forEach((q, idx) => { renderQuestionCard(q, idx + 1); });
+      }
+    }
+
+    function pickNextAdaptiveQuestion() {
+      const unserved = rawQuizData.filter(q => !servedQuestionIds.includes(q.id));
+      if (unserved.length === 0) return null;
+      let candidates = [];
+      if (currentConcept) candidates = unserved.filter(q => q.concept === currentConcept && q.level === currentDifficulty);
+      if (!candidates || candidates.length === 0) candidates = unserved.filter(q => q.level === currentDifficulty);
+      if (!candidates || candidates.length === 0) {
+        if (currentDifficulty === 3) candidates = unserved.filter(q => q.level === 2);
+        else if (currentDifficulty === 1) candidates = unserved.filter(q => q.level === 2);
+        if (!candidates || candidates.length === 0) candidates = unserved;
+      }
+      const chosen = candidates[Math.floor(Math.random() * candidates.length)];
+      if (chosen) currentConcept = chosen.concept;
+      return chosen;
+    }
+
+    function renderNextAdaptiveQuestion() {
+      document.getElementById('adaptiveNextBox').style.display = 'none';
+      const nextQ = pickNextAdaptiveQuestion();
+      if (!nextQ) return;
+      servedQuestionIds.push(nextQ.id);
+      renderQuestionCard(nextQ, servedQuestionIds.length);
+    }
+
+    function renderQuestionCard(q, displayNum) {
+      const container = document.getElementById('questionsContainer');
+      const isSingle = q.type === 'single';
+      const inputType = isSingle ? 'radio' : 'checkbox';
+      const typeBadge = isSingle ? '單選題' : '多選題';
+      let levelText = '⭐ 基礎題', levelClass = 'level-1';
+      if (q.level === 2) { levelText = '⭐⭐ 中階題'; levelClass = 'level-2'; }
+      if (q.level === 3) { levelText = '⭐⭐⭐ 挑戰題'; levelClass = 'level-3'; }
+      const conceptInfo = CONCEPT_MAP[q.concept] ? CONCEPT_MAP[q.concept].name : q.concept;
+
+      let optionsHtml = '';
+      q.options.forEach(opt => {
+        const changeHandler = isSingle ? 'onchange="submitAndLock(' + q.id + ')"' : '';
+        optionsHtml += '<label class="option-label" id="label_' + q.id + '_' + opt.key + '">' +
+          '<input type="' + inputType + '" name="q_' + q.id + '" value="' + opt.key + '" ' + changeHandler + '>' +
+          '<span><strong>(' + opt.key + ')</strong> ' + formatChem(opt.text) + '</span></label>';
+      });
+
+      const actionButton = !isSingle
+        ? '<button type="button" id="btn_' + q.id + '" class="btn-submit-q" onclick="submitAndLock(' + q.id + ')">確定送出本題（鎖定）</button>' : '';
+
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.id = 'card_' + q.id;
+      card.innerHTML = '<div class="q-title"><span class="q-type">' + typeBadge + '</span>' +
+        '<span class="level-badge ' + levelClass + '">' + levelText + '</span>' +
+        '<span class="concept-tag">📌 ' + conceptInfo + '</span>' +
+        '<span id="locked_badge_' + q.id + '"></span>第 ' + displayNum + ' 題：' + formatChem(q.title) + '</div>' +
+        '<div class="options">' + optionsHtml + '</div>' + actionButton + '<div class="result-box" id="result_' + q.id + '"></div>';
+      container.appendChild(card);
+    }
+
+    function submitAndLock(id) {
+      if (statusMap[id] !== undefined) return;
+      const q = rawQuizData.find(item => item.id === id);
+      if (!q) return;
+
+      const checkedInputs = document.querySelectorAll('input[name="q_' + id + '"]:checked');
+      const userAnswers = Array.from(checkedInputs).map(i => i.value).sort();
+      const correctAnswers = [...q.answer].sort();
+      const resultBox = document.getElementById('result_' + id);
+      if (userAnswers.length === 0) { alert('請先勾選答案再送出本題！'); return; }
+
+      document.querySelectorAll('input[name="q_' + id + '"]').forEach(input => input.disabled = true);
+      q.options.forEach(opt => {
+        const label = document.getElementById('label_' + id + '_' + opt.key);
+        if (!label) return;
+        label.classList.add('disabled');
+        const isUserSelected = userAnswers.includes(opt.key);
+        const isActuallyCorrect = correctAnswers.includes(opt.key);
+        if (isUserSelected) {
+          label.classList.add(isActuallyCorrect ? 'opt-selected-correct' : 'opt-selected-wrong');
+        } else if (isActuallyCorrect) {
+          label.classList.add('opt-missed-correct');
+        }
+      });
+
+      const submitBtn = document.getElementById('btn_' + id);
+      if (submitBtn) { submitBtn.disabled = true; submitBtn.style.display = 'none'; }
+      const lockBadge = document.getElementById('locked_badge_' + id);
+      if (lockBadge) { lockBadge.className = 'locked-badge'; lockBadge.innerText = '已鎖定'; }
+
+      const isCorrect = userAnswers.length === correctAnswers.length && userAnswers.every((val, idx) => val === correctAnswers[idx]);
+      resultBox.style.display = 'block';
+      if (isCorrect) {
+        resultBox.className = 'result-box result-correct';
+        resultBox.innerHTML = '<strong>✔ 答對了！</strong> 正確答案：(' + correctAnswers.join(', ') + ')<div class="explanation"><strong>💡 解題步驟與觀念：</strong><br>' + formatChem(q.explanation) + '</div>';
+        if (q.level === 1) consecutiveBaseWrongCount = 0;
+        if (currentDifficulty < 3) currentDifficulty++;
+        currentConcept = q.concept;
+      } else {
+        resultBox.className = 'result-box result-wrong';
+        resultBox.innerHTML = '<strong>✖ 答錯了！</strong> 正確答案是：(' + correctAnswers.join(', ') + ')<br>您的作答：(' + userAnswers.join(', ') + ')<div class="explanation"><strong>💡 解題步驟與觀念：</strong><br>' + formatChem(q.explanation) + '</div>';
+        if (q.level === 1) consecutiveBaseWrongCount++;
+        if (currentDifficulty > 1) currentDifficulty--;
+      }
+
+      statusMap[id] = isCorrect;
+      detailRecords['Q' + id] = { userAnswers: userAnswers, correctAnswers: correctAnswers, isCorrect: isCorrect };
+      if (selectedMode === 'adaptive' && consecutiveBaseWrongCount >= 3) isTerminatedEarly = true;
+
+      updateStatus();
+      if (selectedMode === 'adaptive' && !isTerminatedEarly && !isManualFinished && servedQuestionIds.length < rawQuizData.length) {
+        const nextBox = document.getElementById('adaptiveNextBox');
+        nextBox.style.display = 'block';
+        document.getElementById('btnNextAdaptive').innerText = '✨ 進入第 ' + (servedQuestionIds.length + 1) + ' 題（AI 動態同類進階）';
+      }
+    }
+
+    function triggerEarlyFinish() {
+      const count = Object.keys(statusMap).length;
+      if (count === 0) { alert('您尚未作答任何題目，請至少作答 1 題！'); return; }
+      if (!confirm('您目前已完成 ' + count + ' 題，確定要現在結算並產出能力診斷總評嗎？')) return;
+      isManualFinished = true;
+      document.getElementById('adaptiveNextBox').style.display = 'none';
+      document.getElementById('btnEarlyFinish').style.display = 'none';
+      updateStatus();
+    }
+
+    function updateStatus() {
+      const answeredKeys = Object.keys(statusMap);
+      const answeredCount = answeredKeys.length;
+      let correctCount = 0;
+      answeredKeys.forEach(k => { if (statusMap[k]) correctCount++; });
+      document.getElementById('answeredCount').innerText = answeredCount;
+
+      let displayStatus = '' + rawQuizData.length;
+      if (isTerminatedEarly) displayStatus = answeredCount + '（已觸發停損保護）';
+      else if (isManualFinished) displayStatus = answeredCount + '（自主提早結算）';
+      document.getElementById('totalDisplayCount').innerText = displayStatus;
+
+      const score = answeredCount > 0 ? Math.round((correctCount / answeredCount) * 100) : 0;
+      document.getElementById('scoreText').innerText = score;
+
+      const shouldFinish = (answeredCount === rawQuizData.length) || isTerminatedEarly || isManualFinished;
+      if (shouldFinish && !isUploaded) {
+        uploadResultsToSheet(score, correctCount, answeredCount);
+        generateDiagnosticReport(score, correctCount, answeredCount);
+      }
+    }
+
+    function generateDiagnosticReport(score, correctCount, totalAnswered) {
+      const reportCard = document.getElementById('reportCard');
+      const studentInfo = document.getElementById('reportStudentInfo');
+      const sections = document.getElementById('reportSections');
+      const advice = document.getElementById('studyAdvice');
+
+      const sClass = document.getElementById('studentClass').value;
+      const sSeat = document.getElementById('studentSeat').value;
+      const sName = document.getElementById('studentName').value;
+
+      let bannerText = '考生：' + sClass + ' ' + sSeat + '號 ' + sName + ' ｜ 目前得分：' + score + ' 分（答對 ' + correctCount + ' / 共作答 ' + totalAnswered + ' 題）';
+      if (isTerminatedEarly) bannerText += '<br><span style="color:#dc2626; font-weight:bold;">⚠️ 系統提示：因基礎題連續答錯，已觸發停損保護提前結束。</span>';
+      else if (isManualFinished) bannerText += '<br><span style="color:#2563eb; font-weight:bold;">🏁 學生自主結算：本次測驗依完成題數即時產出診斷報告。</span>';
+      studentInfo.innerHTML = bannerText;
+
+      const conceptStats = {};
+      Object.keys(CONCEPT_MAP).forEach(k => {
+        conceptStats[k] = { total: 0, correct: 0, title: CONCEPT_MAP[k].name, desc: CONCEPT_MAP[k].desc };
+      });
+
+      Object.keys(statusMap).forEach(idStr => {
+        const qId = parseInt(idStr);
+        const q = rawQuizData.find(item => item.id === qId);
+        if (q && conceptStats[q.concept]) {
+          conceptStats[q.concept].total++;
+          if (statusMap[qId]) conceptStats[q.concept].correct++;
+        }
+      });
+
+      const clearList = [], reinforceList = [], weakList = [];
+      Object.keys(conceptStats).forEach(k => {
+        const stat = conceptStats[k];
+        if (stat.total === 0) return;
+        const rate = stat.correct / stat.total;
+        const itemInfo = '<strong>' + stat.title + '</strong>（答對率 ' + Math.round(rate * 100) + '%，' + stat.correct + '/' + stat.total + '題）<br><span style="color:#64748b; font-size:0.9rem;">📌 單元重點：' + stat.desc + '</span>';
+        if (rate >= 0.7) clearList.push(itemInfo);
+        else if (rate >= 0.3) reinforceList.push(itemInfo);
+        else weakList.push(itemInfo);
+      });
+
+      let sectionsHtml = '';
+      if (clearList.length > 0) sectionsHtml += '<div class="diag-section diag-clear"><div class="diag-title" style="color: #166534;">🟢 【觀念清楚】已充分掌握：</div><ul class="diag-list">' + clearList.map(li => '<li>' + li + '</li>').join('') + '</ul></div>';
+      if (reinforceList.length > 0) sectionsHtml += '<div class="diag-section diag-reinforce"><div class="diag-title" style="color: #b45309;">🟡 【需要加強】需再補強練習：</div><ul class="diag-list">' + reinforceList.map(li => '<li>' + li + '</li>').join('') + '</ul></div>';
+      if (weakList.length > 0 || isTerminatedEarly) sectionsHtml += '<div class="diag-section diag-weak"><div class="diag-title" style="color: #991b1b;">🔴 【基礎薄弱】建議回歸課本重讀：</div><ul class="diag-list">' + (weakList.length > 0 ? weakList.map(li => '<li>' + li + '</li>').join('') : '<li>溶度積定義與同離子效應基本計算需優先釐清。</li>') + '</ul></div>';
+      sections.innerHTML = sectionsHtml;
+
+      let adviceText = '<strong>💡 AI 學習導航建議：</strong><br>';
+      if (isTerminatedEarly) adviceText += '<span style="color:#b91c1c;"><strong>先別氣餒！</strong></span>建議先翻開講義或課本，把 Ksp 基本定義與 1:1、1:2 型鹽類的溶解度換算看懂，再點擊下方按鈕重新挑戰！';
+      else if (score >= 85) adviceText += '表現極為優秀！對微溶鹽之 Ksp 計算、分步沉澱與多重平衡聯立分析具備高度熟練度。';
+      else if (score >= 60) adviceText += '整體基礎良好，但在多重沉澱共存或酸鹼促溶複合題型容易疏漏，建議針對黃色與紅色區域加強演練。';
+      else adviceText += '建議先從基本溶解度計算與同離子效應開始複習，建立信心後再進入深度分離沉澱計算。';
+      advice.innerHTML = adviceText;
+
+      reportCard.style.display = 'block';
+      reportCard.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function resetToHome() {
+      document.getElementById('questionsContainer').innerHTML = '';
+      document.getElementById('reportCard').style.display = 'none';
+      document.getElementById('uploadBanner').style.display = 'none';
+      document.getElementById('statusBar').style.display = 'none';
+      document.getElementById('adaptiveNextBox').style.display = 'none';
+      document.getElementById('modeCard').style.display = 'block';
+
+      document.getElementById('studentClass').disabled = false;
+      document.getElementById('studentSeat').disabled = false;
+      document.getElementById('studentName').disabled = false;
+
+      servedQuestionIds.length = 0;
+      for (let k in statusMap) delete statusMap[k];
+      for (let k in detailRecords) delete detailRecords[k];
+      currentDifficulty = 1; currentConcept = null; consecutiveBaseWrongCount = 0;
+      isTerminatedEarly = false; isManualFinished = false; isUploaded = false;
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function uploadResultsToSheet(score, correctCount, totalCount) {
+      isUploaded = true;
+      const banner = document.getElementById('uploadBanner');
+      banner.style.display = 'block';
+      banner.style.color = '#2563eb';
+      banner.innerText = isTerminatedEarly
+        ? '⏳ 測驗提前終止，正在上傳成績至試算表...'
+        : (isManualFinished ? '⏳ 學生提早結算，正在上傳成績至試算表...' : '⏳ 作答完畢，正在上傳成績至試算表...');
+
+      const payload = {
+        studentClass: document.getElementById('studentClass').value.trim(),
+        studentSeat: document.getElementById('studentSeat').value.trim(),
+        studentName: document.getElementById('studentName').value.trim(),
+        score: score, correctCount: correctCount, totalCount: totalCount, details: detailRecords
+      };
+
+      fetch(GOOGLE_SCRIPT_URL, {
+        method: 'POST', mode: 'no-cors',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify(payload)
+      }).then(() => {
+        banner.style.color = '#16a34a';
+        banner.innerText = '✅ 成績與作答紀錄已成功登錄至試算表！請參閱下方診斷總評：';
+      }).catch(() => {
+        banner.style.color = '#dc2626';
+        banner.innerText = '⚠️ 成績上傳失敗，請檢查網路連線。';
+      });
+    }
+  </script>
+</body>
+</html>
